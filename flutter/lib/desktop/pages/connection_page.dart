@@ -18,6 +18,9 @@ import '../../common/widgets/peer_tab_page.dart';
 import '../../common/widgets/autocomplete.dart';
 import '../../models/platform_model.dart';
 import '../widgets/button.dart';
+import 'dart:io';  // Para acceder a Platform.
+import 'package:path/path.dart' as path;
+import 'package:process_run/process_run.dart';
 
 class OnlineStatusWidget extends StatefulWidget {
   const OnlineStatusWidget({Key? key, this.onSvcStatusChanged})
