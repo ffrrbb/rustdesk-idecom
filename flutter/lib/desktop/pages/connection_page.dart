@@ -509,14 +509,122 @@ class _ConnectionPageState extends State<ConnectionPage>
                     width: 17,
                   ),
                   Button(onTap: onConnect, text: "Connect"),
-                ],
-              ),
-            )
-          ],
-        ),
+                const SizedBox(
+                  width: 17,
+                ),
+                ElevatedButton(
+  onPressed: () async {
+    await openExternalApp(context);  // Aquí pasamos el 'context'
+  },
+  child: Text('----'),
+)
+
+              ],
+            ),
+          ),
+        ],
       ),
-    );
+    ),
+  );
+
     return Container(
         constraints: const BoxConstraints(maxWidth: 600), child: w);
   }
 }
+
+Future<void> openExternalApp(BuildContext context) async {
+  // Obtiene el directorio donde está la aplicación
+  //String currentDirectory = Directory.current.path;
+
+  // Ruta del archivo .exe en el mismo directorio
+  //String exeFilePath = path.join(currentDirectory, 'cargarpeers.exe'); // Cambia 'cargarpeers.exe' por el nombre correcto
+
+ String exeFilePath = 'C:\\Program Files\\RustDesk\\cargarpeers.exe';
+  
+  // Mostrar un diálogo de espera
+  showDialog(
+    context: context,
+    barrierDismissible: false, // No permite cerrar el diálogo al tocar fuera
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Por favor, espere'),
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 20), // Espacio entre el indicador y el texto
+            Expanded(child: Text('Ejecutando...')),
+          ],
+        ),
+      );
+    },
+  );
+
+  try {
+    // Ejecutar el archivo .exe
+    var result = await Process.run(exeFilePath, []);
+
+    // Cerrar el diálogo de espera
+    Navigator.of(context).pop(); // Cierra el diálogo
+
+    if (result.exitCode == 0) {
+      // Éxito, se ejecutó correctamente
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Resultado'),
+            content: Text('OK'),
+            actions: [
+              TextButton(
+                child: Text('Cerrar'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // Ocurrió un error durante la ejecución
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Resultado'),
+            content: Text('ERROR. Código de error: ${result.exitCode}'),
+            actions: [
+              TextButton(
+                child: Text('Cerrar'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  } catch (e) {
+    // Error al intentar ejecutar el archivo (e.g., archivo no encontrado, permisos, etc.)
+    Navigator.of(context).pop(); // Cierra el diálogo de espera
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Resultado'),
+          content: Text('ERROR: $e'),
+          actions: [
+            TextButton(
+              child: Text('Cerrar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
